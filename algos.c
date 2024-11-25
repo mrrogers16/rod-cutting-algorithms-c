@@ -44,6 +44,7 @@ int minMemoized(int start, int end)
 {
     if (start >= end)
     {
+        memoMatrix[start][end] = 0; // Set base case value
         return 0;
     }
 
@@ -62,10 +63,9 @@ int minMemoized(int start, int end)
         {
             min_cost = cost;
         }
-
-        memoMatrix[start][end] = min_cost;
-        return min_cost;
     }
+    memoMatrix[start][end] = min_cost;
+    return min_cost;
 }
 
 void computePrefixSum(int arr[])

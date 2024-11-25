@@ -8,8 +8,8 @@
 // Globals
 extern int recursiveCallCount; // Counter for recursive calls
 extern int **memoMatrix;       // Memoization matrix
-extern int n;                  // Number of rods
 extern int *prefixSum;         // Prefix sum array
+extern int n;
 
 int sumArray(int start, int end);
 

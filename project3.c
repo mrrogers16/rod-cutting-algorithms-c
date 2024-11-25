@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     // parse algo letter
     char algorithm = argv[1][0];
     // parse rods
-    int n = atoi(argv[2]);
+    n = atoi(argv[2]);
     if (n <= 0)
     {
         printf("Number of rods must be positive.\n");
@@ -51,10 +51,10 @@ int main(int argc, char *argv[])
         printRecursiveCallCount(rods, n);
         break;
     case 'M':
-        printMemo();
+        printResultsMemoization();
         break;
     case 'm':
-        printMemoMatrix();
+        printMemoizationMatrix();
         break;
     // D d
     default:
