@@ -1,61 +1,30 @@
 #include <stdio.h>
 #include <limits.h>
+#include "algos.h"
 
-// Calclate the sum of array elements from index 'start' to 'end'
-int sumArray(int arr[], int start, int end)
-{
-    int sum = 0;
-    for (int i = start; i <= end; i++)
-    {
-        sum += arr[i];
-    }
-    return sum;
-}
-
-int minRecursive(int arr[], int start, int end)
-{
-
-    // Base Case: Single rod or invalid range
-    if (start >= end)
-    {
-        return 0;
-    }
-
-    int min_cost = INT_MAX;
-
-    // Try all partitions
-    for (int k = start; k < end; k++)
-    {
-        int cost = sumArray(arr, start, end) + minRecursive(arr, start, k) + minRecursive(arr, k + 1, end);
-
-        if (cost < min_cost)
-        {
-            min_cost = cost;
-        }
-    }
-    return min_cost;
-}
-
-void printResultsRecursive(int arr[], int n)
-{
-    int result = minRecursive(arr, 0, n - 1);
-    printf("Minimum galvanization cost: %d\n", result);
-}
 
 int main(int argc, char *argv[])
 {
 
-    if (argc < 3)
+    if (argc < 4)
     {
-        printf("Usage: %s 'number of rods' '[rod lengths]'", argv[0]);
+        printf("Usage: %s 'Algorithm Letter' 'number of rods' '[rod lengths]'\n", argv[0]);
         return 1;
     }
 
+    // parse algo letter
+    char algorithm = argv[1][0];
     // parse rods
-    int n = atoi(argv[1]);
+    int n = atoi(argv[2]);
     if (n <= 0)
     {
-        printf("Number of rods must be positive.");
+        printf("Number of rods must be positive.\n");
+        return 1;
+    }
+
+    if (argc != n + 3)
+    {
+        printf("Incorrect number of rod lengths.\n");
         return 1;
     }
 
@@ -63,16 +32,34 @@ int main(int argc, char *argv[])
     int rods[n];
     for (int i = 0; i < n; i++)
     {
-        rods[i] = atoi(argv[2 + i]);
+        rods[i] = atoi(argv[3 + i]);
         if (rods[i] <= 0)
         {
-            printf("Rod lengths must be positive.");
+            printf("Rod lengths must be positive.\n");
             return 1;
         }
     }
 
-    // Call printResults() for output.
-    printResultsRecursive(rods, n);
+    computePrefixSum(rods);
 
+    switch (algorithm)
+    {
+    case 'R':
+        printResultsRecursive(rods, n);
+        break;
+    case 'r':
+        printRecursiveCallCount(rods, n);
+        break;
+    case 'M':
+        printMemo();
+        break;
+    case 'm':
+        printMemoMatrix();
+        break;
+    // D d
+    default:
+        printf("Invalid algorithm letter.\n");
+        return 1;
+    }
     return 0;
 }
