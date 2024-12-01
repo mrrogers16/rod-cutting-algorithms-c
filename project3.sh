@@ -25,7 +25,7 @@ fi
 
 # Check if input arguments are provided
 if [ $# -lt 2 ]; then
-    echo "Usage: $0 <number_of_rods> <rod_lengths...>"
+    echo "Usage: $0 <algorithm letter> <number_of_rods> <rod_lengths...>"
     exit 1
 fi
 
