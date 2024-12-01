@@ -30,6 +30,5 @@ if [ $# -lt 2 ]; then
 fi
 
 # Run the program with the provided input
-echo "Running the program..."
 ./$EXECUTABLE "$@"
 
