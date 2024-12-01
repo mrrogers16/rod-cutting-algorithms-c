@@ -2,7 +2,6 @@
 #include <limits.h>
 #include "algos.h"
 
-
 int main(int argc, char *argv[])
 {
 
@@ -15,7 +14,7 @@ int main(int argc, char *argv[])
     // parse algo letter
     char algorithm = argv[1][0];
     // parse rods
-    n = atoi(argv[2]);
+    int n = atoi(argv[2]);
     if (n <= 0)
     {
         printf("Number of rods must be positive.\n");
@@ -29,18 +28,23 @@ int main(int argc, char *argv[])
     }
 
     // parse rod lengths
-    int rods[n];
+    int *rods = malloc(n * sizeof(int));
+    if (rods == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for rods.\n");
+        return 1;
+    }
+
     for (int i = 0; i < n; i++)
     {
         rods[i] = atoi(argv[3 + i]);
         if (rods[i] <= 0)
         {
             printf("Rod lengths must be positive.\n");
+            free(rods);
             return 1;
         }
     }
-
-    computePrefixSum(rods);
 
     switch (algorithm)
     {
@@ -51,15 +55,18 @@ int main(int argc, char *argv[])
         printRecursiveCallCount(rods, n);
         break;
     case 'M':
-        printResultsMemoization();
+        printResultsMemoization(rods, n);
         break;
     case 'm':
-        printMemoizationMatrix();
+        printMemoizationMatrix(rods, n);
         break;
     // D d
     default:
         printf("Invalid algorithm letter.\n");
+        free(rods);
         return 1;
     }
+
+    free(rods);
     return 0;
 }

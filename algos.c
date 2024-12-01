@@ -2,22 +2,16 @@
 #include <limits.h>
 #include "algos.h"
 
-// Globals
-int recursiveCallCount = 0; // counter
-int **memoMatrix = NULL;
-int n;                 // Make n global for ease of access
-int *prefixSum = NULL; // For calculating sum
-
 // Calclate the sum of array elements from index 'start' to 'end'
-int sumArray(int start, int end)
+int sumArray(int start, int end, int *prefixSum)
 {
     return prefixSum[end + 1] - prefixSum[start];
 }
 
-int minRecursive(int arr[], int start, int end)
+int minRecursive(int arr[], int start, int end, int n, int *prefixSum, int *recursiveCallCount)
 {
     // Increment our call counter at the start of each recursion
-    recursiveCallCount++;
+    (*recursiveCallCount)++;
 
     // Base Case: Single rod or invalid range
     if (start >= end)
@@ -30,7 +24,7 @@ int minRecursive(int arr[], int start, int end)
     // Try all partitions
     for (int k = start; k < end; k++)
     {
-        int cost = sumArray(start, end) + minRecursive(arr, start, k) + minRecursive(arr, k + 1, end);
+        int cost = sumArray(start, end, prefixSum) + minRecursive(arr, start, k, n, prefixSum, recursiveCallCount) + minRecursive(arr, k + 1, end, n, prefixSum, recursiveCallCount);
         // If better min_cost is found, update min_cost to cost
         if (cost < min_cost)
         {
@@ -40,7 +34,7 @@ int minRecursive(int arr[], int start, int end)
     return min_cost;
 }
 
-int minMemoized(int start, int end)
+int minMemoized(int start, int end, int n, int *prefixSum, int **memoMatrix)
 {
     if (start >= end)
     {
@@ -54,11 +48,11 @@ int minMemoized(int start, int end)
     }
 
     int min_cost = INT_MAX;
-    int total_sum = sumArray(start, end);
+    int total_sum = sumArray(start, end, prefixSum);
 
     for (int k = start; k < end; k++)
     {
-        int cost = total_sum + minMemoized(start, k) + minMemoized(k + 1, end);
+        int cost = total_sum + minMemoized(start, k, n, prefixSum, memoMatrix) + minMemoized(k + 1, end, n, prefixSum, memoMatrix);
         if (cost < min_cost)
         {
             min_cost = cost;
@@ -68,9 +62,9 @@ int minMemoized(int start, int end)
     return min_cost;
 }
 
-void computePrefixSum(int arr[])
+void computePrefixSum(int arr[], int n, int *prefixSum)
 {
-    prefixSum = malloc((n + 1) * sizeof(int));
+    // prefixSum = malloc((n + 1) * sizeof(int));
     prefixSum[0] = 0;
     for (int i = 0; i < n; i++)
     {
@@ -78,21 +72,48 @@ void computePrefixSum(int arr[])
     }
 }
 
-void printMemoizationMatrix()
+void printMemoizationMatrix(int arr[], int n)
 {
+    int *prefixSum = malloc((n + 1) * sizeof(int));
+
+    if (prefixSum == NULL)
+    {
+        fprintf(stderr, "Memory allocation fialed for prefixSum.\n");
+        exit(1);
+    }
+
+    computePrefixSum(arr, n, prefixSum);
 
     // Initalize our memo matrix and fill with -1's
-    memoMatrix = malloc(n * sizeof(int *));
+    int **memoMatrix = malloc(n * sizeof(int *));
+    if (memoMatrix == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for memoMatrix.\n");
+        free(prefixSum);
+        exit(1);
+    }
+
     for (int i = 0; i < n; i++)
     {
         memoMatrix[i] = malloc(n * sizeof(int));
+        if (memoMatrix[i] == NULL)
+        {
+            fprintf(stderr, "Memory allocation failed for memoMatrix[%d].\n", i);
+            free(prefixSum);
+            for (int j = 0; j < i; j++)
+            {
+                free(memoMatrix[j]);
+            }
+            free(memoMatrix);
+            exit(1);
+        }
         for (int j = 0; j < n; j++)
         {
             memoMatrix[i][j] = -1;
         }
     }
 
-    minMemoized(0, n - 1);
+    minMemoized(0, n - 1, n, prefixSum, memoMatrix);
 
     // Print the matrix
     for (int i = 0; i < n; i++)
@@ -113,21 +134,51 @@ void printMemoizationMatrix()
         free(memoMatrix[i]);
     }
     free(memoMatrix);
+    free(prefixSum);
 }
 
-void printResultsMemoization()
+void printResultsMemoization(int arr[], int n)
 {
-    memoMatrix = malloc(n * sizeof(int *));
+    int *prefixSum = malloc((n + 1) * sizeof(int));
+    if (prefixSum == NULL)
+    {
+        fprintf(stderr, "Memory allocation fialed for prefixSum.\n");
+        exit(1);
+    }
+
+    computePrefixSum(arr, n, prefixSum);
+
+    // Initialize memo matrix
+    int **memoMatrix = malloc(n * sizeof(int *));
+    if (memoMatrix == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for memoMatrix.\n");
+        free(prefixSum);
+        exit(1);
+    }
+
     for (int i = 0; i < n; i++)
     {
         memoMatrix[i] = malloc(n * sizeof(int));
+        if (memoMatrix == NULL)
+        {
+            fprintf(stderr, "Memory allocation failed for memoMatrix[%d].\n", i);
+            free(prefixSum);
+            for (int j = 0; j < i; j++)
+            {
+                free(memoMatrix[j]);
+            }
+            free(memoMatrix);
+            exit(1);
+        }
+
         for (int j = 0; j < n; j++)
         {
             memoMatrix[i][j] = -1;
         }
     }
 
-    int result = minMemoized(0, n - 1);
+    int result = minMemoized(0, n - 1, n, prefixSum, memoMatrix);
     printf("%d\n", result);
 
     // Free memory
@@ -136,17 +187,39 @@ void printResultsMemoization()
         free(memoMatrix[i]);
     }
     free(memoMatrix);
+    free(prefixSum);
 }
 
 void printResultsRecursive(int arr[], int n)
 {
-    int result = minRecursive(arr, 0, n - 1);
+    int *prefixSum = malloc((n + 1) * sizeof(int));
+    if (prefixSum == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for prefixSum.\n");
+        exit(1);
+    }
+    computePrefixSum(arr, n, prefixSum);
+    int recursiveCallCount = 0; // Not needed for this
+    int result = minRecursive(arr, 0, n - 1, n, prefixSum, &recursiveCallCount);
     printf("%d\n", result);
+
+    free(prefixSum);
 }
 
 void printRecursiveCallCount(int arr[], int n)
 {
-    recursiveCallCount = 0;
-    minRecursive(arr, 0, n - 1);
+    int *prefixSum = malloc((n + 1) * sizeof(int));
+    if (prefixSum == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for prefixSum.\n");
+        exit(1);
+    }
+
+    computePrefixSum(arr, n, prefixSum);
+
+    int recursiveCallCount = 0;
+    minRecursive(arr, 0, n - 1, n, prefixSum, &recursiveCallCount);
     printf("%d\n", recursiveCallCount);
+
+    free(prefixSum);
 }

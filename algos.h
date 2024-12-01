@@ -5,23 +5,17 @@
 #include <stdlib.h>
 #include <limits.h>
 
-// Globals
-extern int recursiveCallCount; // Counter for recursive calls
-extern int **memoMatrix;       // Memoization matrix
-extern int *prefixSum;         // Prefix sum array
-extern int n;
+int sumArray(int start, int end, int *prefixSum);
 
-int sumArray(int start, int end);
+int minRecursive(int arr[], int start, int end, int n, int *prefixSum, int *recursiveCallCount);
 
-int minRecursive(int arr[], int start, int end);
+int minMemoized(int start, int end, int n, int *prefixSum, int **memoMatrix);
 
-int minMemoized(int start, int end);
+void computePrefixSum(int arr[], int n, int *prefixSum);
 
-void computePrefixSum(int arr[]);
+void printMemoizationMatrix(int arr[], int n);
 
-void printMemoizationMatrix(void);
-
-void printResultsMemoization(void);
+void printResultsMemoization(int arr[], int n);
 
 void printResultsRecursive(int arr[], int n);
 
