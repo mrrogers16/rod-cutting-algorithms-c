@@ -60,7 +60,12 @@ int main(int argc, char *argv[])
     case 'm':
         printMemoizationMatrix(rods, n);
         break;
-    // D d
+    case 'D':
+        printResultsDynamic(rods, n);
+        break;
+    case 'd':
+        printDynamicTable(rods, n);
+        break;
     default:
         printf("Invalid algorithm letter.\n");
         free(rods);

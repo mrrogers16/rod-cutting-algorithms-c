@@ -223,3 +223,151 @@ void printRecursiveCallCount(int arr[], int n)
 
     free(prefixSum);
 }
+
+int minDynamic(int arr[], int n, int *prefixSum, int **dpMatrix)
+{
+    // Base case = dpMatrix[i][i] = 0
+    // This is set during initialization
+
+    // Fill dp matrix
+    for (int length = 2; length <= n; length++)
+    {
+        for (int i = 0; i <= n - length; i++)
+        {
+            int j = i + length - 1;
+            dpMatrix[i][j] = INT_MAX;
+            int total_sum = sumArray(i, j, prefixSum);
+            for (int k = i; k < j; k++)
+            {
+                int cost = dpMatrix[i][k] + dpMatrix[k + 1][j] + total_sum;
+                if (cost < dpMatrix[i][j])
+                {
+                    dpMatrix[i][j] = cost;
+                }
+            }
+        }
+    }
+    return dpMatrix[0][n - 1];
+}
+
+void printResultsDynamic(int arr[], int n)
+{
+    int *prefixSum = malloc((n + 1) * sizeof(int));
+    if (prefixSum == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for prefixSum.\n");
+        exit(1);
+    }
+    computePrefixSum(arr, n, prefixSum);
+
+    // Init dpMatrix
+    int **dpMatrix = malloc(n * sizeof(int *));
+    if (dpMatrix == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for dpMatrix.\n");
+        free(prefixSum);
+        exit(1);
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        dpMatrix[i] = malloc(n * sizeof(int));
+        if (dpMatrix[i] == NULL)
+        {
+            fprintf(stderr, "Memory allocation failed for dpMatrix[%d].\n", i);
+            free(prefixSum);
+            for (int j = 0; j < i; j++)
+            {
+                free(dpMatrix[j]);
+            }
+            free(dpMatrix);
+            exit(1);
+        }
+        for (int j = 0; j < n; j++)
+        {
+            if (i == j)
+            {
+                dpMatrix[i][j] = 0;
+            }
+            else
+            {
+                dpMatrix[i][j] = -1;
+            }
+        }
+    }
+    int result = minDynamic(arr, n, prefixSum, dpMatrix);
+    printf("%d\n", result);
+
+    // Free memory
+    for (int i = 0; i < n; i++)
+    {
+        free(dpMatrix[i]);
+    }
+    free(dpMatrix);
+    free(prefixSum);
+}
+
+void printDynamicTable(int arr[], int n)
+{
+    int *prefixSum = malloc((n + 1) * sizeof(int));
+    if (prefixSum == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for prefixSum.\n");
+        exit(1);
+    }
+    computePrefixSum(arr, n, prefixSum);
+
+    // Initialize dpMatrix
+    int **dpMatrix = malloc(n * sizeof(int *));
+    if (dpMatrix == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for dpMatrix.\n");
+        free(prefixSum);
+        exit(1);
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        dpMatrix[i] = malloc(n * sizeof(int));
+        if (dpMatrix[i] == NULL)
+        {
+            fprintf(stderr, "Memory allocation failed for dpMatrix[%d].\n", i);
+            free(prefixSum);
+            for (int j = 0; j < i; j++)
+            {
+                free(dpMatrix[j]);
+            }
+            free(dpMatrix);
+            exit(1);
+        }
+        for (int j = 0; j < n; j++)
+        {
+            if (i == j)
+                dpMatrix[i][j] = 0;
+            else if (i > j)
+                dpMatrix[i][j] = -1;
+            else
+                dpMatrix[i][j] = -1;
+        }
+    }
+    minDynamic(arr, n, prefixSum, dpMatrix);
+
+    // Print the dpMatrix
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            printf("%d", dpMatrix[i][j]);
+            if (j < n - 1)
+                printf(" ");
+        }
+        printf("\n");
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        free(dpMatrix[i]);
+    }
+    free(dpMatrix);
+    free(prefixSum);
+}
