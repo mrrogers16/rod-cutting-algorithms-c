@@ -5,9 +5,8 @@ EXECUTABLE="project3"
 MAKEFILE="Makefile"
 
 # Compile the project using the Makefile with C99 flag
-echo "Compiling the project with C99 standard..."
 if [ -f "$MAKEFILE" ]; then
-    make CFLAGS="-std=c99 -Wall -Wextra -g"
+    make CFLAGS="-std=c99 -Wall -Wextra -g" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo "Compilation failed. Exiting."
         exit 1
